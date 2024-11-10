@@ -1,6 +1,6 @@
 import prisma from "../DB/db.config.js";
 // get data
-export const fetchUsers = async(req, res) =>{
+export const fetchPosts = async(req, res) =>{
     const users = await prisma.user.findMany({})
     return res.json({status:200, data:users})
 }
