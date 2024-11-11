@@ -1,63 +1,56 @@
 import prisma from "../DB/db.config.js";
+
 // get data
 export const fetchPosts = async(req, res) =>{
-    const users = await prisma.user.findMany({})
-    return res.json({status:200, data:users})
+    const posts = await prisma.post.findMany({})
+    return res.json({status:200, data:posts})
 }
-// show single user
-export const showUser = async(req,res) =>{
-    const userId = req.params.id
-    const user = await prisma.user.findFirst({
+
+// show single post
+export const showPost = async(req,res) =>{
+    const postId = req.params.id
+    const post = await prisma.post.findFirst({
         where:{
-            id:Number(userId)
+            id:Number(postId)
         }
     })
-    return res.json({status:200, data:user})
+    return res.json({status:200, data:post})
 }
-// create user
- export const createUser = async(req,res)=>{
-    const {name, email, password} = req.body
-    const findUser = await prisma.user.findUnique({
-        where:{
-            email : email
-        }
-    })
-    if(findUser){
-        return res.json({status:400, message:"Email already taken, please provide another one"})
-    }
-    const newUser = await prisma.user.create({
+// create post
+ export const createPost = async(req,res)=>{
+    const {user_id , title, description} = req.body
+    const newPost = await prisma.post.create({
         data:{
-            name : name,
-            email : email,
-            password : password
+           user_id : Number(user_id),
+           title,
+           description
         }
     })
-    return res.json({status:200, data:newUser, msg:"user created"})
+    return res.json({status:200, data:newPost, msg:"Post created created"})
  }
 
-//  update the user
-export const updateUser = async(req,res) =>{
-    const userId = req.params.id;
-    const {name, email, password} = req.body;
-    await prisma.user.update({
+//  update the post
+export const updatepost = async(req,res) =>{
+    const postId = req.params.id;
+    const {title, description} = req.body;
+    await prisma.post.update({
         where:{
-            id: Number(userId)
+            id: Number(postId)
         },
         data:{
-            name,
-            email,
-            password
+            title,
+            description
         }
     })
-    return res.json({status:200, message:"user updated successfully"})
+    return res.json({status:200, message:"post updated successfully"})
 }
- // Delete user
- export const deleteUser = async(req, res) =>{
-        const userId = req.params.id;
-        await prisma.user.deleteMany({
+ // Delete post
+ export const deletepost = async(req, res) =>{
+        const postId = req.params.id;
+        await prisma.post.deleteMany({
             where:{
-                id:Number(userId)
+                id:Number(postId)
             }
         })
-        return res.json({status:200, message:"user deleted successfully"})
+        return res.json({status:200, message:"post deleted successfully"})
  }
