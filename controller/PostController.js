@@ -2,9 +2,69 @@ import prisma from "../DB/db.config.js";
 
 // get data
 export const fetchPosts = async(req, res) =>{
-    // fetch post with comment
-    const posts = await prisma.post.findMany({})
-    return res.json({status:200, data:posts})
+    // pagination
+    const page = Number(req.query.page) || 1
+    const limit = Number(req.query.limit) || 10
+    if(page <= 0){
+        page = 1
+    }
+    if(limit <= 0 || limit > 100){
+        limit = 10
+    }
+    const skip = (page - 1) * limit
+    const posts = await prisma.post.findMany({
+        // for pagination
+        skip:skip,
+        take : limit,
+         // fetch post with comment
+        // include:{
+        //     comment:true,
+        // }
+
+
+        //fetch post with comment specific user 
+        // include:{
+        //     comment:{
+        //         include:{
+        //             user:true
+        //         }
+        //     }
+        // }
+
+        // fetch post with comment specific name
+        include:{
+            comment:{
+                include:{
+                    user:{
+                        select:{
+                            name : true
+                        }
+                    }
+                }
+            }
+        },
+        // to get the post in descending order
+        orderBy: {
+            id : "desc"
+        },
+        // get the post more than one
+        where:{
+            comment_count:{
+                // gt = greater than
+                gt : 1
+            }
+        },
+        where:{
+            title:{
+                // get the data which is start with js, to get the data with end data use = endsWith
+                startsWith:"js"
+            }
+        }
+    })
+    // to get the total posts count
+    const totalPosts = await prisma.post.count();
+    const totalPages = Math.ceil(totalPosts / limit);
+    return res.json({status:200, data:posts, meta:{totalPages, currentPage:page, limit:limit}})
 }
 
 // show single post
@@ -55,3 +115,17 @@ export const updatepost = async(req,res) =>{
         })
         return res.json({status:200, message:"post deleted successfully"})
  }
+
+
+//  To search the post
+export const searchPost = async(req, res) =>{
+    const query = req.query.q 
+    const posts = await prisma.post.findMany({
+        where:{
+            description:{
+                search:query
+            }
+        }
+    })
+    return res.json({status:200, data:posts})
+}

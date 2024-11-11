@@ -2,7 +2,23 @@ import prisma from "../DB/db.config.js";
 
 // get data
 export const fetchComments = async(req, res) =>{
-    const comments = await prisma.comment.findMany({})
+    const comments = await prisma.comment.findMany({
+        // fetch comments with post
+        // include:{
+        //     post:true
+        // }
+        
+
+        // fetch comment with user
+          include:{
+            user:true,
+            post:{
+               include:{
+                user : true
+               }
+            }
+        }
+    })
     return res.json({status:200, data:comments})
 }
 
@@ -11,7 +27,7 @@ export const showComment = async(req,res) =>{
     const commentId = req.params.id
     const comment = await prisma.comment.findFirst({
         where:{
-            id:Number(commentId)
+            id:String(commentId)
         }
     })
     return res.json({status:200, data:comment})
@@ -46,7 +62,7 @@ export const updateComment = async(req,res) =>{
     const {comment} = req.body;
     await prisma.comment.update({
         where:{
-            id: Number(commentId)
+            id: String(commentId)
         },
         data:{
             comment
