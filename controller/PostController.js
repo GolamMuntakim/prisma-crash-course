@@ -2,6 +2,7 @@ import prisma from "../DB/db.config.js";
 
 // get data
 export const fetchPosts = async(req, res) =>{
+    // fetch post with comment
     const posts = await prisma.post.findMany({})
     return res.json({status:200, data:posts})
 }

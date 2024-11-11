@@ -2,15 +2,26 @@ import prisma from "../DB/db.config.js";
 // get data
 export const fetchUsers = async(req, res) =>{
     const users = await prisma.user.findMany({
-        // get user data with post count 
-        select:{
-            _count :{
-                select:{
-                    post : true,
-                    comment: true
+        // Get post with relations
+        include:{
+            post : {
+                select: {
+                    title : true,
                 }
             }
         }
+
+
+
+        // get user data with post count 
+        // select:{
+        //     _count :{
+        //         select:{
+        //             post : true,
+        //             comment: true
+        //         }
+        //     }
+        // }
 
 
 
